@@ -1,0 +1,5 @@
+node_modules/
+dist/
+layer/
+.aws-sam/
+*.min.js
