@@ -158,32 +158,47 @@ throw new BadRequestError("Invalid input", { field: "email" });
 
 ## Publish to AWS CodeArtifact
 
-1. **Get an authorization token** (valid for 12 hours):
+The deploy script handles versioning, build, authentication, and publishing in a single step.
 
-   ```bash
-   export CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token \
-     --domain YOUR_DOMAIN \
-     --domain-owner YOUR_AWS_ACCOUNT_ID \
-     --region YOUR_REGION \
-     --query authorizationToken \
-     --output text)
-   ```
+### 1. Configure environment variables
 
-2. **Set the token for the CodeArtifact registry**:
+Copy `.env.example` to `.env` (already gitignored) at the project root and fill in your values:
 
-   ```bash
-   npm config set //YOUR_DOMAIN-YOUR_AWS_ACCOUNT_ID.d.codeartifact.YOUR_REGION.amazonaws.com/npm/YOUR_REPOSITORY/:_authToken=$CODEARTIFACT_AUTH_TOKEN
-   ```
+```bash
+cp .env.example .env
+```
 
-3. **Build and publish**:
+```dotenv
+CODEARTIFACT_DOMAIN=your-domain
+CODEARTIFACT_DOMAIN_OWNER=your-aws-account-id
+CODEARTIFACT_REPOSITORY=your-repository
+CODEARTIFACT_REGION=us-east-1
+NPM_SCOPE=@arj
+```
 
-   ```bash
-   npm run publish:artifact
-   ```
+> In CI pipelines, set these as environment secrets — the `.env` file is not required.
 
-> Replace `YOUR_DOMAIN`, `YOUR_AWS_ACCOUNT_ID`, `YOUR_REGION`, and `YOUR_REPOSITORY` with your own AWS CodeArtifact values.
+### 2. Run the deploy script
 
-The `prepublishOnly` script ensures the build runs before publishing. The published package includes only the `dist/` folder (see the `files` field in `package.json`).
+```bash
+# bump patch (e.g. 1.0.5 → 1.0.6) — default
+npm run deploy
+
+# bump minor (e.g. 1.0.5 → 1.1.0)
+npm run deploy -- minor
+
+# bump major (e.g. 1.0.5 → 2.0.0)
+npm run deploy -- major
+```
+
+The script (`infrastructure/deployment/deploy.sh`) will:
+1. Run the test suite
+2. Bump the version in `package.json`
+3. Build the project
+4. Obtain a short-lived CodeArtifact authorization token via the AWS CLI
+5. Publish the package and clean up the token
+
+**Prerequisites:** AWS CLI configured with `codeartifact:GetAuthorizationToken` and `codeartifact:PublishPackageVersion` permissions.
 
 ## Layout
 
@@ -197,5 +212,8 @@ src/
 ├── service/      # Service implementations
 └── util/         # HTTP response helpers + logger
 test/             # Unit tests (Vitest)
+infrastructure/
+├── aws/          # SAM/CloudFormation templates
+└── deployment/   # deploy.sh — versioning + CodeArtifact publish
 dist/             # Compiled output (after npm run build)
 ```

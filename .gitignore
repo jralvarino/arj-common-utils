@@ -5,3 +5,4 @@ layer/
 *.tgz
 .aws-sam/
 .npmrc
+.env
