@@ -1,4 +1,4 @@
-# Common Utils Lambda Layer
+# ARJ Common Utils
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-24-339933?logo=nodedotjs&logoColor=white)
@@ -15,13 +15,13 @@ Shared TypeScript package distributed as an AWS Lambda Layer. Centralizes common
 
 | Import path | What it provides |
 |---|---|
-| `@arj/common-utils-layer/util` | HTTP response helpers (`success`, `created`, `noContent`, …) + structured logger |
-| `@arj/common-utils-layer/db` | Pre-configured DynamoDB document client |
-| `@arj/common-utils-layer/error` | `CommonError` base class for typed application errors |
-| `@arj/common-utils-layer/middleware` | Middy middlewares: global exception handler, Zod validator, request logger, user ID extractor |
-| `@arj/common-utils-layer/model` | Shared domain models (e.g. `User`) |
-| `@arj/common-utils-layer/repository` | Base repository abstractions (e.g. `UserRepository`) |
-| `@arj/common-utils-layer/service` | Base service abstractions (e.g. `UserService`) |
+| `@arj/arj-common-utils/util` | HTTP response helpers (`success`, `created`, `noContent`, …) + structured logger |
+| `@arj/arj-common-utils/db` | Pre-configured DynamoDB document client |
+| `@arj/arj-common-utils/error` | `CommonError` base class for typed application errors |
+| `@arj/arj-common-utils/middleware` | Middy middlewares: global exception handler, Zod validator, request logger, user ID extractor |
+| `@arj/arj-common-utils/model` | Shared domain models (e.g. `User`) |
+| `@arj/arj-common-utils/repository` | Base repository abstractions (e.g. `UserRepository`) |
+| `@arj/arj-common-utils/service` | Base service abstractions (e.g. `UserService`) |
 
 ## Build
 
@@ -75,7 +75,7 @@ npm config set registry https://registry.npmjs.org/
 ### 3. Install the package
 
 ```bash
-npm install @arj/common-utils-layer
+npm install @arj/arj-common-utils
 ```
 
 ### 4. Import and use
@@ -83,7 +83,7 @@ npm install @arj/common-utils-layer
 **Response helpers (JavaScript/CommonJS):**
 
 ```javascript
-const { success, created, noContent } = require("@arj/common-utils-layer/util");
+const { success, created, noContent } = require("@arj/arj-common-utils/util");
 
 exports.handler = async (event) => {
   return success({ message: "Ok" });
@@ -93,7 +93,7 @@ exports.handler = async (event) => {
 **Response helpers (TypeScript):**
 
 ```typescript
-import { success, created, noContent } from "@arj/common-utils-layer/util";
+import { success, created, noContent } from "@arj/arj-common-utils/util";
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 
 export const handler = async (
@@ -106,7 +106,7 @@ export const handler = async (
 **Structured logger:**
 
 ```typescript
-import { createLogger } from "@arj/common-utils-layer/util";
+import { createLogger } from "@arj/arj-common-utils/util";
 
 const logger = createLogger("my-lambda-api");
 
@@ -125,7 +125,7 @@ import {
   zodValidatorMiddleware,
   requestLoggingMiddleware,
   extractUserIdMiddleware,
-} from "@arj/common-utils-layer/middleware";
+} from "@arj/arj-common-utils/middleware";
 import { z } from "zod";
 
 const bodySchema = z.object({ name: z.string() });
@@ -144,7 +144,7 @@ export const handler = middy(baseHandler)
 **DynamoDB client:**
 
 ```typescript
-import { dynamoClient } from "@arj/common-utils-layer/db";
+import { dynamoClient } from "@arj/arj-common-utils/db";
 import { GetCommand } from "@aws-sdk/lib-dynamodb";
 
 const result = await dynamoClient.send(
@@ -155,7 +155,7 @@ const result = await dynamoClient.send(
 **Error handling:**
 
 ```typescript
-import { CommonError } from "@arj/common-utils-layer/error";
+import { CommonError } from "@arj/arj-common-utils/error";
 
 throw new CommonError("RESOURCE_NOT_FOUND", "Item not found", 404);
 ```

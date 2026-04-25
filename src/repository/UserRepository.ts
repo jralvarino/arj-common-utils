@@ -3,7 +3,7 @@ import { ddb } from "../db/dynamoClient.js";
 import { User } from "../model/User.js";
 import { createLogger } from "../util/logger.js";
 
-const logger = createLogger("common-utils-layer");
+const logger = createLogger("arj-common-utils");
 const USER_TABLE = "user";
 
 export class UserRepository {

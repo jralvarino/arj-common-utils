@@ -4,7 +4,7 @@ import type { z } from "zod";
 import { ValidationError } from "../error/CommonError.js";
 import { createLogger } from "../util/logger.js";
 
-const logger = createLogger("common-utils-layer");
+const logger = createLogger("arj-common-utils");
 
 export const zodValidator = <T extends z.ZodType>(
     schema: T

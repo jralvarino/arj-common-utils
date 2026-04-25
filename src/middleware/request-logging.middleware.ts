@@ -2,7 +2,7 @@ import type { MiddlewareObj } from "@middy/core";
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { createLogger } from "../util/logger.js";
 
-const logger = createLogger("common-utils-layer");
+const logger = createLogger("arj-common-utils");
 
 export const requestLoggingMiddleware = (): MiddlewareObj<APIGatewayProxyEvent, APIGatewayProxyResult> => {
     return {

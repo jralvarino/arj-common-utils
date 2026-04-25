@@ -4,7 +4,7 @@ import { ZodError } from "zod";
 import { CommonError } from "../error/CommonError.js";
 import { createLogger } from "../util/logger.js";
 
-const logger = createLogger("common-utils-layer");
+const logger = createLogger("arj-common-utils");
 
 interface ErrorResponse {
     statusCode: number;
