@@ -1,0 +1,8 @@
+# Copy this file to .npmrc and fill in your own values.
+# .npmrc is listed in .gitignore and must never be committed.
+
+# Default registry: public npm
+registry=https://registry.npmjs.org/
+
+# Only @arj packages come from CodeArtifact
+@arj:registry=https://YOUR_DOMAIN-YOUR_AWS_ACCOUNT_ID.d.codeartifact.YOUR_REGION.amazonaws.com/npm/YOUR_REPOSITORY/
