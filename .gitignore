@@ -3,4 +3,3 @@ dist/
 layer/
 *.zip
 .aws-sam/
-README.md
