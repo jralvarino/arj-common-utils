@@ -1,6 +1,6 @@
 {
     "name": "@arj/common-utils-layer",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "author": "Alvarino Ribeiro Junior",
     "license": "MIT",
     "description": "Common utilities shared via Lambda layer.",
@@ -32,6 +32,11 @@
             "types": "./dist/middleware/index.d.ts",
             "require": "./dist/middleware/index.js",
             "import": "./dist/middleware/index.js"
+        },
+        "./service": {
+            "types": "./dist/service/index.d.ts",
+            "require": "./dist/service/index.js",
+            "import": "./dist/service/index.js"
         }
     },
     "scripts": {
