@@ -3,7 +3,7 @@
     "version": "1.0.5",
     "author": "Alvarino Ribeiro Junior",
     "license": "MIT",
-    "description": "Common utilities shared via Lambda layer.",
+    "description": "Shared TypeScript library providing common utilities for AWS Lambda projects.",
     "files": [
         "dist"
     ],
@@ -46,20 +46,24 @@
         "format": "prettier --write \"src/**/*.ts\"",
         "format:check": "prettier --check \"src/**/*.ts\"",
         "prepublishOnly": "npm run build",
-        "publish:artifact": "npm run build && npm publish"
+        "publish:artifact": "npm run build && npm publish",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "test:coverage": "vitest run --coverage"
     },
     "engines": {
         "node": ">=24.0.0"
     },
     "devDependencies": {
+        "@eslint/js": "^9.0.0",
         "@types/aws-lambda": "^8.10.159",
         "@types/node": "^22.0.0",
-        "@eslint/js": "^9.0.0",
         "eslint": "^9.0.0",
         "eslint-config-prettier": "^9.0.0",
         "prettier": "^3.4.0",
         "typescript": "^5.7.0",
-        "typescript-eslint": "^8.0.0"
+        "typescript-eslint": "^8.0.0",
+        "vitest": "^4.1.5"
     },
     "dependencies": {
         "@aws-lambda-powertools/logger": "^2.0.0",

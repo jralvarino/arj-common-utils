@@ -2,40 +2,30 @@
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-24-339933?logo=nodedotjs&logoColor=white)
-![AWS Lambda](https://img.shields.io/badge/AWS_Lambda-FF9900?logo=awslambda&logoColor=white)
 ![DynamoDB](https://img.shields.io/badge/DynamoDB-4053D6?logo=amazondynamodb&logoColor=white)
 ![AWS Secrets Manager](https://img.shields.io/badge/Secrets_Manager-DD344C?logo=amazonaws&logoColor=white)
 ![Middy](https://img.shields.io/badge/Middy-6.x-black?logo=nodedotjs&logoColor=white)
 ![Zod](https://img.shields.io/badge/Zod-4.x-3068B7?logo=zod&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-Shared TypeScript package distributed as an AWS Lambda Layer. Centralizes common utilities, HTTP response helpers, structured logging, DynamoDB client, error handling, Middy middlewares, and base models/repositories/services — so each Lambda function stays thin and consistent.
+Shared TypeScript library providing common utilities for AWS Lambda projects. Centralizes HTTP response helpers, structured logging, DynamoDB client, error handling, Middy middlewares, and base models and services — so each Lambda function stays thin and consistent.
 
 ## Modules
 
 | Import path | What it provides |
 |---|---|
-| `@arj/arj-common-utils/util` | HTTP response helpers (`success`, `created`, `noContent`, …) + structured logger |
-| `@arj/arj-common-utils/db` | Pre-configured DynamoDB document client |
-| `@arj/arj-common-utils/error` | `CommonError` base class for typed application errors |
-| `@arj/arj-common-utils/middleware` | Middy middlewares: global exception handler, Zod validator, request logger, user ID extractor |
+| `@arj/arj-common-utils/util` | HTTP response helpers (`success`, `created`, `noContent`) + structured logger (`createLogger`) |
+| `@arj/arj-common-utils/db` | Pre-configured DynamoDB document client (`ddb`) |
+| `@arj/arj-common-utils/error` | `CommonError` and typed subclasses (`NotFoundError`, `BadRequestError`, etc.) |
+| `@arj/arj-common-utils/middleware` | Middy middlewares: `globalExceptionHandler`, `zodValidator`, `requestLoggingMiddleware`, `extractUserIdMiddleware` |
 | `@arj/arj-common-utils/model` | Shared domain models (e.g. `User`) |
-| `@arj/arj-common-utils/repository` | Base repository abstractions (e.g. `UserRepository`) |
-| `@arj/arj-common-utils/service` | Base service abstractions (e.g. `UserService`) |
+| `@arj/arj-common-utils/service` | Base service implementations (e.g. `UserService`) |
 
 ## Build
 
 ```bash
 npm install
-./build.sh
-```
-
-## Deploy (SAM)
-
-```bash
-sam build
-sam deploy --guided   # first time
-sam deploy            # subsequent
+npm run build
 ```
 
 ## Using in a Lambda project
@@ -80,25 +70,23 @@ npm install @arj/arj-common-utils
 
 ### 4. Import and use
 
-**Response helpers (JavaScript/CommonJS):**
-
-```javascript
-const { success, created, noContent } = require("@arj/arj-common-utils/util");
-
-exports.handler = async (event) => {
-  return success({ message: "Ok" });
-};
-```
-
 **Response helpers (TypeScript):**
 
 ```typescript
 import { success, created, noContent } from "@arj/arj-common-utils/util";
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 
-export const handler = async (
-  event: APIGatewayProxyEvent
-): Promise<APIGatewayProxyResult> => {
+export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  return success({ message: "Ok" });
+};
+```
+
+**Response helpers (JavaScript/CommonJS):**
+
+```javascript
+const { success, created, noContent } = require("@arj/arj-common-utils/util");
+
+exports.handler = async (event) => {
   return success({ message: "Ok" });
 };
 ```
@@ -120,15 +108,20 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 
 ```typescript
 import middy from "@middy/core";
+import { z } from "zod";
 import {
-  globalExceptionHandlerMiddleware,
-  zodValidatorMiddleware,
+  globalExceptionHandler,
+  zodValidator,
   requestLoggingMiddleware,
   extractUserIdMiddleware,
 } from "@arj/arj-common-utils/middleware";
-import { z } from "zod";
+import { success } from "@arj/arj-common-utils/util";
 
-const bodySchema = z.object({ name: z.string() });
+const schema = z.object({
+  body: z.string().nullable(),
+  pathParameters: z.object({ id: z.string() }),
+  queryStringParameters: z.object({}).optional(),
+});
 
 const baseHandler = async (event) => {
   return success({ message: "Ok" });
@@ -137,17 +130,17 @@ const baseHandler = async (event) => {
 export const handler = middy(baseHandler)
   .use(requestLoggingMiddleware())
   .use(extractUserIdMiddleware())
-  .use(zodValidatorMiddleware({ bodySchema }))
-  .use(globalExceptionHandlerMiddleware());
+  .use(zodValidator(schema))
+  .use(globalExceptionHandler());
 ```
 
 **DynamoDB client:**
 
 ```typescript
-import { dynamoClient } from "@arj/arj-common-utils/db";
+import { ddb } from "@arj/arj-common-utils/db";
 import { GetCommand } from "@aws-sdk/lib-dynamodb";
 
-const result = await dynamoClient.send(
+const result = await ddb.send(
   new GetCommand({ TableName: "my-table", Key: { pk: "123" } })
 );
 ```
@@ -155,14 +148,13 @@ const result = await dynamoClient.send(
 **Error handling:**
 
 ```typescript
-import { CommonError } from "@arj/arj-common-utils/error";
+import { NotFoundError, BadRequestError } from "@arj/arj-common-utils/error";
 
-throw new CommonError("RESOURCE_NOT_FOUND", "Item not found", 404);
+throw new NotFoundError("Item not found");
+throw new BadRequestError("Invalid input", { field: "email" });
 ```
 
 > The package ships with full TypeScript declarations (`.d.ts`). Add `@types/aws-lambda` to `devDependencies` for Lambda event types.
-
-> If you see warnings like `Unknown project config "shamefully-hoist"`, those are pnpm-only options — safe to ignore or remove from `.npmrc` when using npm.
 
 ## Publish to AWS CodeArtifact
 
@@ -198,12 +190,12 @@ The `prepublishOnly` script ensures the build runs before publishing. The publis
 ```
 src/
 ├── db/           # DynamoDB document client
-├── error/        # CommonError base class
+├── error/        # CommonError and typed subclasses
 ├── middleware/   # Middy middlewares
 ├── model/        # Shared domain models
-├── repository/   # Base repository abstractions
-├── service/      # Base service abstractions
+├── repository/   # Internal repository implementations (not exported)
+├── service/      # Service implementations
 └── util/         # HTTP response helpers + logger
+test/             # Unit tests (Vitest)
 dist/             # Compiled output (after npm run build)
-layer/            # Layer artifact (after ./build.sh), used by SAM
 ```
