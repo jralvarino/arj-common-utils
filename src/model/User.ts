@@ -1,6 +1,8 @@
 export interface User {
     userId: string;
-    password: string;
+    email: string;
+    passwordHash: string;
+    apps: string[];
     name?: string;
     avatar?: string;
     createdAt?: string;

@@ -2,13 +2,13 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { User } from "../../src/model/User.js";
 
 const mockFindAll = vi.hoisted(() => vi.fn());
-const mockFindByUser = vi.hoisted(() => vi.fn());
+const mockFindById = vi.hoisted(() => vi.fn());
 
 vi.mock("../../src/repository/UserRepository.js", () => ({
     UserRepository: vi.fn(function () {
         return {
             findAll: mockFindAll,
-            findByUser: mockFindByUser,
+            findById: mockFindById,
         };
     }),
 }));
@@ -22,7 +22,7 @@ describe("UserService", () => {
     let service: UserService;
 
     beforeEach(() => {
-        vi.clearAllMocks();
+        vi.resetAllMocks();
         service = new UserService();
     });
 
@@ -53,16 +53,16 @@ describe("UserService", () => {
 
     describe("getUserById", () => {
         it("returns the user when found", async () => {
-            mockFindByUser.mockResolvedValueOnce(user1);
+            mockFindById.mockResolvedValueOnce(user1);
 
             const result = await service.getUserById("u1");
 
             expect(result).toEqual(user1);
-            expect(mockFindByUser).toHaveBeenCalledWith("u1");
+            expect(mockFindById).toHaveBeenCalledWith("u1");
         });
 
         it("returns null when user does not exist", async () => {
-            mockFindByUser.mockResolvedValueOnce(null);
+            mockFindById.mockResolvedValueOnce(null);
 
             const result = await service.getUserById("unknown");
 
@@ -70,7 +70,7 @@ describe("UserService", () => {
         });
 
         it("propagates repository errors", async () => {
-            mockFindByUser.mockRejectedValueOnce(new Error("DB unavailable"));
+            mockFindById.mockRejectedValueOnce(new Error("DB unavailable"));
 
             await expect(service.getUserById("u1")).rejects.toThrow("DB unavailable");
         });

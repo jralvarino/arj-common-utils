@@ -9,6 +9,14 @@ export class UserService {
     }
 
     async getUserById(userId: string): Promise<User | null> {
-        return userRepository.findByUser(userId);
+        return userRepository.findById(userId);
+    }
+
+    async findByEmail(email: string): Promise<User | null> {
+        return userRepository.findByEmail(email);
+    }
+
+    async createUser(user: User): Promise<User> {
+        return userRepository.create(user);
     }
 }

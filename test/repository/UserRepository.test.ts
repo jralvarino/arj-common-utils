@@ -25,15 +25,15 @@ describe("UserRepository", () => {
     let repo: UserRepository;
 
     beforeEach(() => {
-        vi.clearAllMocks();
+        vi.resetAllMocks();
         repo = new UserRepository();
     });
 
-    describe("findByUser", () => {
+    describe("findById", () => {
         it("returns the user when found", async () => {
             mockSend.mockResolvedValueOnce({ Item: user1 });
 
-            const result = await repo.findByUser("u1");
+            const result = await repo.findById("u1");
 
             expect(result).toEqual(user1);
             expect(mockSend).toHaveBeenCalledOnce();
@@ -42,7 +42,7 @@ describe("UserRepository", () => {
         it("returns null when item is not found", async () => {
             mockSend.mockResolvedValueOnce({ Item: undefined });
 
-            const result = await repo.findByUser("nonexistent");
+            const result = await repo.findById("nonexistent");
 
             expect(result).toBeNull();
         });
@@ -50,7 +50,7 @@ describe("UserRepository", () => {
         it("propagates errors from DynamoDB", async () => {
             mockSend.mockRejectedValueOnce(new Error("DynamoDB error"));
 
-            await expect(repo.findByUser("u1")).rejects.toThrow("DynamoDB error");
+            await expect(repo.findById("u1")).rejects.toThrow("DynamoDB error");
         });
     });
 
