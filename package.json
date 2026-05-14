@@ -1,6 +1,6 @@
 {
     "name": "@arj/arj-common-utils",
-    "version": "1.0.20",
+    "version": "1.0.21",
     "author": "Alvarino Ribeiro Junior",
     "license": "MIT",
     "description": "Shared TypeScript library providing common utilities for AWS Lambda projects.",
