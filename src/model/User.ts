@@ -5,5 +5,6 @@ export interface User {
     apps: string[];
     name?: string;
     avatar?: string;
+    salary?: number;
     createdAt?: string;
 }
