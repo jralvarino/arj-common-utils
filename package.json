@@ -46,6 +46,7 @@
         "format": "prettier --write \"src/**/*.ts\"",
         "format:check": "prettier --check \"src/**/*.ts\"",
         "prepublishOnly": "npm run build",
+        "create-house": "npm run build && node dist/scripts/create-house.js",
         "deploy": "bash infrastructure/deployment/deploy.sh",
         "test": "vitest run",
         "test:watch": "vitest",
